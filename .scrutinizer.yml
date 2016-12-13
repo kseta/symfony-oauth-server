@@ -1,0 +1,26 @@
+build:
+    environment:
+        php:
+            version: 7.0.8
+    dependencies:
+         before:
+            - mysql -e "CREATE DATABASE symfony_oauth_server"
+    tests:
+        override:
+            -
+                command: 'bin/phpunit -c app --coverage-clover=clover.xml'
+                coverage:
+                    file: 'clover.xml'
+                    format: 'php-clover'
+checks:
+    php:
+        code_rating: true
+        duplication: true
+filter:
+    excluded_paths:
+        - app/AppKernel.php
+        - app/AppCache.php
+        - app/check.php
+        - app/SymfonyRequirements.php
+        - web/app.php
+        - src/**/*Test.php
