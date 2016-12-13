@@ -14,8 +14,8 @@ class CreateOAuthClientCommand extends ContainerAwareCommand
         $this
             ->setName('app:oauth-client:create')
             ->setDescription('Create OAuth Client.')
-            ->addArgument('redirectUri', InputArgument::REQUIRED, 'The redirect uri')
-            ->addArgument('grantType',   InputArgument::REQUIRED, 'The grant type')
+            ->addArgument('redirectUri', InputArgument::REQUIRED,                           'The redirect uri')
+            ->addArgument('grantType',   InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'The grant type')
             ->setHelp(<<<EOT
 The <info>app:oauth:create</info> command creates a OAuth Client:
 
@@ -32,11 +32,12 @@ EOT
     {
         $redirectUri = $input->getArgument('redirectUri');
         $grantType   = $input->getArgument('grantType');
+        $grantTypes  = explode(' ', $grantType);
 
         $clientManager = $this->getContainer()->get('fos_oauth_server.client_manager.default');
         $client = $clientManager->createClient();
         $client->setRedirectUris([$redirectUri]);
-        $client->setAllowedGrantTypes([$grantType]);
+        $client->setAllowedGrantTypes($grantTypes);
         $clientManager->updateClient($client);
 
         $output->writeln(sprintf('Created OAuth Client'));
@@ -64,7 +65,7 @@ EOT
         if (!$input->getArgument('grantType')) {
             $grantType = $this->getHelper('dialog')->askAndValidate(
                 $output,
-                'Please choose a Grant Type:',
+                'Please choose a Grant Types (separate multiple grant type with a space):',
                 function($grantType) {
                     if (empty($grantType)) {
                         throw new \Exception('Grant Type can not be empty');
